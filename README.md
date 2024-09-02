@@ -1,6 +1,7 @@
 # laravel
 Tutorial Laravel untuk Pemula
 
+## Instalasi, setup Database, Membuat API
 
 Berikut adalah langkah-langkah untuk membuat API dengan metode POST, GET, dan PUT menggunakan Laravel bagi pemula:
 
@@ -108,3 +109,82 @@ Berikut adalah langkah-langkah untuk membuat API dengan metode POST, GET, dan PU
    - Jika Anda ingin menambahkan otentikasi, Laravel memiliki paket `sanctum` yang sederhana untuk membuat API dengan token otentikasi.
 
 Dengan mengikuti langkah-langkah di atas, Anda seharusnya bisa membuat API sederhana dengan Laravel. Semoga membantu!
+
+## Otorisasi Authentikasi Token
+
+Untuk mengimplementasikan otentikasi menggunakan PASETO (Platform-Agnostic Security Tokens) di Laravel, Anda dapat mengikuti langkah-langkah berikut:
+
+### 1. **Install Laravel Passport**
+   Laravel secara native mendukung Laravel Passport untuk otentikasi API berbasis token. Namun, untuk menggunakan PASETO, kita perlu menggunakan paket pihak ketiga.
+
+   - Install paket PASETO menggunakan Composer:
+     ```bash
+     composer require sksoft/laravel-paseto
+     ```
+
+### 2. **Publikasikan Konfigurasi**
+   - Publikasikan file konfigurasi untuk PASETO:
+     ```bash
+     php artisan vendor:publish --provider="SKsoft\LaravelPaseto\PasetoServiceProvider"
+     ```
+
+### 3. **Konfigurasi PASETO**
+   - Buka file konfigurasi `config/paseto.php`.
+   - Atur konfigurasi sesuai kebutuhan Anda. Misalnya, Anda bisa memilih untuk menggunakan symmetric key atau asymmetric key.
+
+### 4. **Generate Keys**
+   - Jika Anda menggunakan PASETO dengan kunci asymmetric, Anda perlu membuat kunci publik dan privat:
+     ```bash
+     php artisan paseto:keys
+     ```
+   - Kunci ini akan disimpan dalam `storage/app/paseto`.
+
+### 5. **Integrasikan Middleware**
+   - Buka file `app/Http/Kernel.php` dan tambahkan middleware PASETO:
+     ```php
+     protected $routeMiddleware = [
+         'auth.paseto' => \SKsoft\LaravelPaseto\Http\Middleware\AuthenticateWithPaseto::class,
+     ];
+     ```
+
+### 6. **Lindungi Route dengan PASETO**
+   - Buka file `routes/api.php` dan tambahkan middleware untuk melindungi route yang memerlukan otentikasi:
+     ```php
+     Route::middleware('auth.paseto')->group(function () {
+         Route::apiResource('posts', PostController::class);
+     });
+     ```
+
+### 7. **Generate dan Verifikasi Token PASETO**
+   - Untuk menghasilkan token PASETO, Anda dapat membuat endpoint khusus atau mengintegrasikan logika dalam proses login.
+   - Contoh kode untuk menghasilkan token PASETO:
+     ```php
+     use Paseto\Keys\SymmetricKey;
+     use Paseto\Builder;
+
+     public function generateToken(Request $request)
+     {
+         $key = SymmetricKey::generate();
+         $token = (new Builder())
+             ->setKey($key)
+             ->setIssuedAt()
+             ->setExpiration((new \DateTimeImmutable())->modify('+1 hour'))
+             ->setClaims(['user_id' => auth()->id()])
+             ->toString();
+
+         return response()->json(['token' => $token]);
+     }
+     ```
+   - Simpan token ini di client-side dan kirimkan di header setiap permintaan sebagai `Authorization: Bearer {token}`.
+
+### 8. **Verifikasi Token PASETO dalam Middleware**
+   - Middleware `AuthenticateWithPaseto` akan memverifikasi token secara otomatis untuk memastikan keabsahan dan izin akses.
+
+### 9. **Test API dengan PASETO**
+   - Gunakan Postman atau Curl untuk mengirim permintaan dengan token PASETO di header.
+   - Contoh dengan Curl:
+     ```bash
+     curl -X GET http://localhost:8000/api/posts -H "Authorization: Bearer {your_paseto_token}"
+     ```
+
+Dengan konfigurasi ini, Anda dapat menggunakan PASETO untuk otentikasi API di Laravel. PASETO menawarkan keamanan yang lebih baik dibandingkan JWT dalam beberapa aspek dan merupakan pilihan yang baik untuk aplikasi modern.
