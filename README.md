@@ -110,6 +110,85 @@ Berikut adalah langkah-langkah untuk membuat API dengan metode POST, GET, dan PU
 
 Dengan mengikuti langkah-langkah di atas, Anda seharusnya bisa membuat API sederhana dengan Laravel. Semoga membantu!
 
+## Model dan Migration
+
+Dalam Laravel, **Model** dan **Migration** adalah dua konsep fundamental yang membantu Anda mengelola dan bekerja dengan database secara efisien.
+
+### 1. **Model**
+
+**Model** adalah representasi dari sebuah tabel di database. Model adalah bagian dari Eloquent ORM (Object-Relational Mapping) di Laravel yang memungkinkan Anda untuk berinteraksi dengan database menggunakan objek dan metode yang lebih alami daripada menulis SQL secara langsung.
+
+- **Fungsi Utama Model:**
+  - **Merepresentasikan Tabel:** Setiap model biasanya terhubung dengan satu tabel dalam database. Misalnya, jika Anda memiliki tabel `posts`, Anda mungkin memiliki model `Post`.
+  - **Mengelola Data:** Model digunakan untuk mengelola data di tabel tersebut, seperti menyimpan, memperbarui, menghapus, dan mengambil data.
+  - **Relasi Antar Tabel:** Model juga bisa digunakan untuk mendefinisikan relasi antara tabel, seperti one-to-one, one-to-many, dan many-to-many.
+
+- **Contoh:**
+  Misalnya, berikut adalah model `Post`:
+  ```php
+  namespace App\Models;
+
+  use Illuminate\Database\Eloquent\Model;
+
+  class Post extends Model
+  {
+      protected $fillable = ['title', 'content'];
+  }
+  ```
+  Di sini, model `Post` merepresentasikan tabel `posts` di database, dan atribut `fillable` menentukan kolom mana yang dapat diisi secara massal (mass assignable).
+
+### 2. **Migration**
+
+**Migration** adalah cara untuk mengelola skema database Anda dalam kode. Migration memungkinkan Anda untuk membuat, mengubah, dan menghapus tabel dan kolom di database menggunakan kode PHP, bukan SQL mentah.
+
+- **Fungsi Utama Migration:**
+  - **Mengelola Skema Database:** Migration adalah seperti "versi kontrol" untuk skema database. Ini membantu Anda mengubah struktur tabel tanpa harus menulis SQL secara langsung.
+  - **Portabilitas:** Migration membuat pengelolaan skema database menjadi lebih portable. Anda bisa menjalankan migration yang sama di berbagai lingkungan (misalnya, lokal, staging, production) dengan perintah yang sama.
+  - **Rollback:** Migration juga mendukung rollback, artinya Anda bisa membatalkan perubahan yang dilakukan oleh migration tertentu.
+
+- **Contoh:**
+  Misalnya, berikut adalah migration untuk membuat tabel `posts`:
+  ```php
+  use Illuminate\Database\Migrations\Migration;
+  use Illuminate\Database\Schema\Blueprint;
+  use Illuminate\Support\Facades\Schema;
+
+  class CreatePostsTable extends Migration
+  {
+      public function up()
+      {
+          Schema::create('posts', function (Blueprint $table) {
+              $table->id();
+              $table->string('title');
+              $table->text('content');
+              $table->timestamps();
+          });
+      }
+
+      public function down()
+      {
+          Schema::dropIfExists('posts');
+      }
+  }
+  ```
+  - **`up` Method:** Metode ini mendefinisikan apa yang terjadi ketika migration dijalankan. Dalam contoh ini, tabel `posts` dibuat dengan kolom `id`, `title`, `content`, dan `timestamps`.
+  - **`down` Method:** Metode ini mendefinisikan apa yang terjadi ketika migration dibatalkan (rolled back). Di sini, tabel `posts` akan dihapus.
+
+- **Menjalankan Migration:**
+  Untuk menjalankan migration dan membuat tabel `posts`, Anda bisa menggunakan perintah:
+  ```bash
+  php artisan migrate
+  ```
+  Perintah ini akan menerapkan semua migration yang belum dijalankan.
+
+### **Hubungan Model dan Migration**
+
+- **Model** mengelola data di dalam tabel yang direpresentasikannya.
+- **Migration** mengelola struktur tabel tersebut (misalnya, membuat tabel atau menambahkan kolom baru).
+
+Kedua konsep ini bekerja sama untuk memungkinkan Anda mengelola database secara efisien dalam Laravel. Migration memastikan bahwa skema database Anda selalu up-to-date dan bisa diubah dengan mudah, sementara Model memungkinkan Anda berinteraksi dengan data di database tersebut menggunakan kode PHP yang bersih dan intuitif.
+
+
 ## Interaksi dengan Basis Data
 Di Laravel, interaksi dengan database sangat mudah dilakukan menggunakan Eloquent ORM (Object-Relational Mapping). Berikut adalah cara-cara untuk melakukan operasi dasar seperti mendapatkan satu baris, mendapatkan semua baris, memperbarui satu baris, dan menghapus satu baris:
 
