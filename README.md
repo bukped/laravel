@@ -383,3 +383,86 @@ Untuk mengimplementasikan otentikasi menggunakan PASETO (Platform-Agnostic Secur
      ```
 
 Dengan konfigurasi ini, Anda dapat menggunakan PASETO untuk otentikasi API di Laravel. PASETO menawarkan keamanan yang lebih baik dibandingkan JWT dalam beberapa aspek dan merupakan pilihan yang baik untuk aplikasi modern.
+
+## Factory dan Seeder
+
+Dalam Laravel, **Factory** dan **Seeder** adalah alat yang sangat berguna untuk membuat dan mengisi data di database selama pengembangan atau pengujian. Mereka membantu Anda dengan cepat membuat data sampel atau mengisi tabel dengan data yang diperlukan untuk menjalankan aplikasi Anda.
+
+### 1. **Factory**
+
+**Factory** adalah sebuah fitur yang memungkinkan Anda membuat objek model dengan data contoh (dummy data) untuk keperluan pengujian atau pengisian database selama pengembangan. Factory ini sangat berguna ketika Anda perlu mengisi database dengan sejumlah besar data untuk menguji fitur atau melakukan pengembangan.
+
+- **Cara Kerja:**
+  Factory mendefinisikan bagaimana data model harus dihasilkan. Anda bisa menentukan nilai default untuk setiap kolom di model Anda, dan Laravel akan membuatkan data palsu (fake) menggunakan library Faker.
+
+- **Contoh Factory:**
+  Misalnya, berikut adalah contoh factory untuk model `Post`:
+  ```php
+  use App\Models\Post;
+  use Illuminate\Database\Eloquent\Factories\Factory;
+  use Faker\Generator as Faker;
+
+  class PostFactory extends Factory
+  {
+      protected $model = Post::class;
+
+      public function definition()
+      {
+          return [
+              'title' => $this->faker->sentence,
+              'content' => $this->faker->paragraph,
+          ];
+      }
+  }
+  ```
+  Di sini, `definition()` mendefinisikan bagaimana data contoh untuk model `Post` harus dibuat. `faker->sentence` akan menghasilkan kalimat acak untuk kolom `title`, dan `faker->paragraph` akan menghasilkan paragraf acak untuk kolom `content`.
+
+- **Menggunakan Factory:**
+  Anda bisa menggunakan factory untuk membuat satu atau beberapa instance model:
+  ```php
+  // Membuat satu instance
+  $post = Post::factory()->create();
+
+  // Membuat beberapa instance
+  $posts = Post::factory()->count(10)->create();
+  ```
+
+### 2. **Seeder**
+
+**Seeder** adalah fitur yang digunakan untuk mengisi tabel database dengan data awal (seeding). Seeder sangat berguna untuk mengisi tabel dengan data statis yang diperlukan untuk aplikasi Anda, seperti kategori default, peran pengguna, atau data uji lainnya.
+
+- **Cara Kerja:**
+  Seeder berfungsi dengan menjalankan kode yang mengisi database Anda dengan data. Anda bisa menggunakan seeder untuk mengisi database dengan data yang dihasilkan oleh factory atau data yang Anda definisikan sendiri.
+
+- **Contoh Seeder:**
+  Misalnya, berikut adalah contoh seeder untuk mengisi tabel `posts` dengan data:
+  ```php
+  use Illuminate\Database\Seeder;
+  use App\Models\Post;
+
+  class PostSeeder extends Seeder
+  {
+      public function run()
+      {
+          Post::factory()->count(50)->create();
+      }
+  }
+  ```
+  Di sini, seeder `PostSeeder` menggunakan factory `PostFactory` untuk membuat 50 data acak dalam tabel `posts`.
+
+- **Menjalankan Seeder:**
+  Untuk menjalankan seeder dan mengisi database Anda dengan data yang ditentukan, Anda bisa menggunakan perintah:
+  ```bash
+  php artisan db:seed --class=PostSeeder
+  ```
+  Atau Anda bisa menjalankan semua seeder yang terdaftar dalam file `DatabaseSeeder.php` dengan perintah:
+  ```bash
+  php artisan db:seed
+  ```
+
+### **Hubungan antara Factory dan Seeder**
+
+- **Factory** digunakan untuk membuat data palsu untuk model, seringkali untuk tujuan pengujian atau pengembangan.
+- **Seeder** menggunakan Factory (atau metode lain) untuk mengisi tabel di database dengan data awal atau data contoh.
+
+Keduanya sangat membantu dalam proses pengembangan, terutama ketika Anda perlu membuat data dalam jumlah besar untuk menguji bagaimana aplikasi Anda berfungsi dengan data yang beragam.
