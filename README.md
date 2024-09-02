@@ -110,6 +110,122 @@ Berikut adalah langkah-langkah untuk membuat API dengan metode POST, GET, dan PU
 
 Dengan mengikuti langkah-langkah di atas, Anda seharusnya bisa membuat API sederhana dengan Laravel. Semoga membantu!
 
+## Interaksi dengan Basis Data
+Di Laravel, interaksi dengan database sangat mudah dilakukan menggunakan Eloquent ORM (Object-Relational Mapping). Berikut adalah cara-cara untuk melakukan operasi dasar seperti mendapatkan satu baris, mendapatkan semua baris, memperbarui satu baris, dan menghapus satu baris:
+
+### 1. **Mendapatkan Satu Baris dengan Query**
+
+Untuk mendapatkan satu baris dari tabel, Anda bisa menggunakan metode `find`, `first`, atau `where`.
+
+- **Menggunakan `find`:**
+  ```php
+  $post = Post::find(1);
+  ```
+  Di sini, `1` adalah `id` dari baris yang ingin Anda dapatkan.
+
+- **Menggunakan `first` dengan Kondisi:**
+  ```php
+  $post = Post::where('title', 'Judul Postingan')->first();
+  ```
+  Ini akan mengembalikan baris pertama yang cocok dengan kondisi yang diberikan.
+
+- **Menggunakan `firstOrFail`:**
+  ```php
+  $post = Post::where('title', 'Judul Postingan')->firstOrFail();
+  ```
+  Jika tidak ada baris yang cocok, ini akan menampilkan `ModelNotFoundException`.
+
+### 2. **Mendapatkan Seluruh Baris**
+
+Untuk mendapatkan semua baris dari tabel, Anda bisa menggunakan metode `all` atau `get`.
+
+- **Menggunakan `all`:**
+  ```php
+  $posts = Post::all();
+  ```
+
+- **Menggunakan `get` dengan Kondisi (opsional):**
+  ```php
+  $posts = Post::where('published', true)->get();
+  ```
+  Ini akan mengembalikan semua baris yang memenuhi kondisi tertentu.
+
+### 3. **Memperbarui Satu Baris**
+
+Untuk memperbarui satu baris, Anda bisa menggunakan metode `update` atau melalui instance model.
+
+- **Menggunakan Instance Model:**
+  ```php
+  $post = Post::find(1);
+  $post->title = 'Judul Baru';
+  $post->content = 'Konten baru';
+  $post->save();
+  ```
+
+- **Menggunakan `update` pada Query Builder:**
+  ```php
+  Post::where('id', 1)->update(['title' => 'Judul Baru', 'content' => 'Konten baru']);
+  ```
+
+### 4. **Menghapus Satu Baris**
+
+Untuk menghapus satu baris, Anda bisa menggunakan metode `delete`.
+
+- **Menggunakan Instance Model:**
+  ```php
+  $post = Post::find(1);
+  $post->delete();
+  ```
+
+- **Menggunakan `delete` pada Query Builder:**
+  ```php
+  Post::where('id', 1)->delete();
+  ```
+
+### Contoh Lengkap di Controller
+
+Misalkan kita ingin mengimplementasikan semua operasi ini dalam sebuah controller:
+
+```php
+use App\Models\Post;
+use Illuminate\Http\Request;
+
+class PostController extends Controller
+{
+    // Mendapatkan satu row
+    public function show($id)
+    {
+        $post = Post::findOrFail($id);
+        return response()->json($post);
+    }
+
+    // Mendapatkan semua row
+    public function index()
+    {
+        $posts = Post::all();
+        return response()->json($posts);
+    }
+
+    // Update satu row
+    public function update(Request $request, $id)
+    {
+        $post = Post::findOrFail($id);
+        $post->update($request->all());
+        return response()->json($post);
+    }
+
+    // Delete satu row
+    public function destroy($id)
+    {
+        $post = Post::findOrFail($id);
+        $post->delete();
+        return response()->json(['message' => 'Post deleted successfully']);
+    }
+}
+```
+
+Dengan cara ini, Anda dapat melakukan operasi dasar pada database di Laravel menggunakan Eloquent ORM, yang membuat pengelolaan data lebih mudah dan efisien.
+
 ## Otorisasi Authentikasi Token
 
 Untuk mengimplementasikan otentikasi menggunakan PASETO (Platform-Agnostic Security Tokens) di Laravel, Anda dapat mengikuti langkah-langkah berikut:
